@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--配置整合mybatis-->
+        <!--数据库相关参数-->
+    <context:property-placeholder location="classpath:spring/jdbc.properties" />
+
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <!--配置连接池的基本属性-->
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        
+        <!--配置私有属性-->
+<!--        <property name="maxActive" value="33"/>
+        <property name="connectionErrorRetryAttempts" value="3"/>-->
+
+    </bean>
+    <!--配置sqlsessionfactory-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--注入连接池-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--注入mybatis全局配置文件-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!--扫描entity包-->
+        <property name="typeAliasesPackage" value="com.me.seckill.entity"/>
+        <!--扫描mapper-->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+
+    </bean>
+
+    <!--扫描Dao接口包，自动的动态代理实现接口，并注入到spring容器中-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--注入sqlSessionFactory-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <!--dao接口包-->
+        <property name="basePackage" value="com.me.seckill.dao"/>
+    </bean>
+        <!-- redisDao -->
+    <bean id="redisDao" class="com.me.seckill.dao.cache.RedisDao">
+        <constructor-arg index="0" value="localhost" />
+        <constructor-arg index="1" value="6379" />
+    </bean>
+
+</beans>
